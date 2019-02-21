@@ -6,8 +6,6 @@ l, r = None, None
 pizza = []
 
 
-PATH = 'a_example.in'
-
 def read_file(path):
     global n, m, l, r, pizza
     with open(path) as f:
@@ -31,8 +29,8 @@ class Solution(object):
         with open(filename, 'w') as f:
             f.write("%d\n" % len(self.slices))
             for sl in self.slices:
-                for c in sl:
-                    f.write("%d " % (c - 1))
+
+                f.write("%d %d %d %d" % (sl[0] - 1, sl[2] - 1, sl[1] - 1, sl[3] - 1))
                 f.write("\n")
 
     def __lt__(self, other):
@@ -57,7 +55,6 @@ class Solution(object):
     def __repr__(self):
         return "S: %d, %s" % (self.reward, self.slices)
 
-read_file(PATH)
 
 def get_dp(pizza, n, m):
     dp = {'T': [[0] * (m + 1) for _ in xrange(n + 1)],
@@ -69,7 +66,7 @@ def get_dp(pizza, n, m):
                 dp[k][i + 1][j + 1] = dp[k][i][j + 1] + dp[k][i + 1][j] - dp[k][i][j]
 
             dp[pizza[i][j]][i + 1][j + 1] += 1
-    print dp
+    #print dp
     return dp
 
 def is_slice(dp, i1, i2, j1, j2):
@@ -89,12 +86,16 @@ def is_slice(dp, i1, i2, j1, j2):
         assert len(dp[k][0]) ==  m + 1
 
         cnt = get_ingr_cnt(dp[k], i1, i2, j1, j2)
-        if cnt < l or cnt > r:
+        if cnt < l or slice_size(i1, i2, j1, j2) > r:
             return False
     return True
 
 def slice_size(i1, i2, j1, j2):
     return (j2 - j1 + 1) * (i2 - i1 + 1)
+
+def is_large_slice(i1, i2, j1, j2):
+    global r
+    return (j2 - j1 + 1) * (i2 - i1 + 1) > r
 
 def get_ingr_cnt(dp, i1, i2, j1, j2):
     # print "get ingr cnt ", i1, i2, j1, j2
@@ -116,6 +117,10 @@ def v_stripe_dp(dp, i1, i2, j1, j2):
 
                 if pot_sl.reward > bs[i].reward:
                     bs[i] = pot_sl
+
+            if is_large_slice(ii, i, j1, j2):
+                break
+
 
     # print "v_stripe_dp %d %d %d %d" % (i1, i2, j1, j2)
     # print bs
@@ -142,13 +147,21 @@ def vertical_dp(pizza):
 
         print best_solution[j]
 
-    print best_solution
+    #print best_solution
     return best_solution[m]
 
 
 
-t1 = vertical_dp(pizza)
-t1.print_out('a.out')
+#PATHS = [ 'a', 'b', 'c', 'd' ]
+PATHS = [ 'd']
+
+
+
+for path in PATHS:
+    read_file(path + '.in')
+
+    t1 = vertical_dp(pizza)
+    t1.print_out(path + '.out')
 
 
 # dp = get_dp(pizza, n, m)
